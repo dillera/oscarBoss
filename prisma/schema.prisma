@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  token     String   @unique
+  createdAt DateTime @default(now())
+  votes     Vote[]
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  sortOrder Int       @default(0)
+  info      String?
+  nominees  Nominee[]
+  votes     Vote[]
+  winner    Winner?
+}
+
+model Nominee {
+  id         Int      @id @default(autoincrement())
+  name       String
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  imageUrl   String?
+  trailerUrl String?
+  votes      Vote[]
+}
+
+model Vote {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  categoryId Int
+  nomineeId  Int
+  rank       Int
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+  nominee    Nominee  @relation(fields: [nomineeId], references: [id])
+
+  @@unique([userId, categoryId, rank])
+}
+
+model Winner {
+  id         Int      @id @default(autoincrement())
+  categoryId Int      @unique
+  nomineeName String
+  announcedAt DateTime @default(now())
+  category   Category @relation(fields: [categoryId], references: [id])
+}

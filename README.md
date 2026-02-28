@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OscarBoss 🏆
 
-## Getting Started
+**98th Academy Awards Prediction App — March 15, 2026**
 
-First, run the development server:
+Predict 2026 Oscar winners across all 24 categories, track live prediction market odds, and compete on a real-time leaderboard.
+
+## Features
+
+- **Lightweight auth** — register/login with just your first name (cookie-based sessions)
+- **All 24 categories** — seeded with every 2026 nominee across all Academy Award categories
+- **Nominee cards** — hero images (Unsplash), YouTube trailer links, live market odds
+- **Live odds** — mocked Kalshi + Polymarket consensus odds, polled every 30s with jitter
+- **Voting system** — 2 picks per category: **My Pick** (2pts) and **Academy Pick** (1pt). Pick the same nominee for both = 3pts if correct.
+- **Live leaderboard** — shows all users, scores, and individual picks; updates when winners announced
+- **Admin panel** — click the logo 5× to open winner entry panel (for ceremony night use)
+- **Results tally CLI** — command-line script for entering winners on March 15
+
+## Stack
+
+- **Next.js 16** (App Router, TypeScript)
+- **TailwindCSS v4** + Radix UI primitives
+- **Prisma v7** + SQLite (better-sqlite3 adapter)
+- **lucide-react** icons
+
+## Setup
 
 ```bash
+cd oscarboss
+npm install
+
+# Initialize & seed database
+npx prisma migrate dev --name init
+npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts
+
+# Start dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Results Tally (March 15, 2026)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Use the CLI script or the in-app admin panel (click logo 5×) to enter winners.
 
-## Learn More
+```bash
+# List all categories
+npx ts-node --compiler-options '{"module":"CommonJS"}' scripts/tally-results.ts --list
 
-To learn more about Next.js, take a look at the following resources:
+# Set a winner (partial name match supported)
+npx ts-node --compiler-options '{"module":"CommonJS"}' scripts/tally-results.ts --set "Best Picture" "Sinners"
+npx ts-node --compiler-options '{"module":"CommonJS"}' scripts/tally-results.ts --set "Actor" "Chalamet"
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Show live leaderboard scores
+npx ts-node --compiler-options '{"module":"CommonJS"}' scripts/tally-results.ts --scores
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Clear a winner
+npx ts-node --compiler-options '{"module":"CommonJS"}' scripts/tally-results.ts --clear "Best Picture"
+```
 
-## Deploy on Vercel
+## API Reference
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register with `{ firstName }` |
+| POST | `/api/auth/login` | Login with `{ firstName }` |
+| GET | `/api/auth/me` | Get current session user |
+| POST | `/api/auth/logout` | Clear session cookie |
+| GET | `/api/categories` | All categories + nominees + user votes |
+| POST | `/api/votes` | Save picks `{ categoryId, picks: [{nomineeId, rank}] }` |
+| GET | `/api/odds` | Live mocked odds from Kalshi/Polymarket |
+| GET | `/api/leaderboard` | All users ranked by score |
+| GET | `/api/winners` | All announced winners |
+| POST | `/api/winners` | Set winner `{ categoryId, nomineeName }` |
+| DELETE | `/api/winners` | Clear winner `{ categoryId }` |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Scoring
+
+| Pick | Points |
+|------|--------|
+| **My Pick** correct | 2 pts |
+| **Academy Pick** correct | 1 pt |
+| Both picks on same nominee, it wins | 3 pts |
+
+Users can change their picks any time before the ceremony starts.

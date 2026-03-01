@@ -72,7 +72,31 @@ info "Node          : ${NODE_BIN}"
 info "npm           : ${NPM_BIN}"
 echo ""
 
-# 1. Build the app (source env file first so NEXT_PUBLIC_* vars are available at build time)
+# 1. Install dependencies
+info "Installing npm dependencies..."
+sudo -u "${APP_USER}" bash -c "cd '${APP_DIR}' && ${NPM_BIN} install"
+success "Dependencies installed."
+echo ""
+
+# 2. Generate Prisma client
+info "Generating Prisma client..."
+sudo -u "${APP_USER}" bash -c "cd '${APP_DIR}' && ${NPM_BIN} exec prisma generate"
+success "Prisma client generated."
+echo ""
+
+# 3. Run database migrations
+info "Running database migrations..."
+sudo -u "${APP_USER}" bash -c "cd '${APP_DIR}' && ${NPM_BIN} exec prisma migrate deploy"
+success "Migrations applied."
+echo ""
+
+# 4. Seed the database (idempotent — upserts categories/nominees)
+info "Seeding database..."
+sudo -u "${APP_USER}" bash -c "cd '${APP_DIR}' && ${NPM_BIN} run seed"
+success "Database seeded."
+echo ""
+
+# 5. Build the app (source env file first so NEXT_PUBLIC_* vars are available at build time)
 info "Building Next.js app..."
 if [[ -f "${APP_DIR}/env" ]]; then
   info "Sourcing ${APP_DIR}/env for build..."

@@ -50,13 +50,16 @@ git clone https://github.com/dillera/oscarBoss.git
 cd oscarBoss
 npm install
 
+# Generate Prisma client (required before any DB or build steps)
+npx prisma generate
+
 # Create production env file
 cp env.example env
 # Edit env and set NEXT_PUBLIC_BASE_PATH=/oscars
 
-# Initialize DB and seed
+# Run migrations and seed
 npx prisma migrate deploy
-npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts
+npm run seed
 
 # Build and start on port 3510
 npm run build

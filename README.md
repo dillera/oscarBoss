@@ -46,8 +46,8 @@ The app is configured to run at a subpath (e.g. `https://apps.diller.org/oscars`
 
 ```bash
 # Clone and install
-git clone git@github.com:dillera/oscarBoss.git
-cd oscarBoss/oscarboss
+git clone https://github.com/dillera/oscarBoss.git
+cd oscarBoss
 npm install
 
 # Create production env file

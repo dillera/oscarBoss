@@ -54,7 +54,7 @@ ExecStart=${NPM_BIN} run start
 Restart=on-failure
 RestartSec=5
 Environment=NODE_ENV=production
-EnvironmentFile=-${APP_DIR}/.env.production
+EnvironmentFile=-${APP_DIR}/env
 
 [Install]
 WantedBy=multi-user.target
@@ -72,9 +72,15 @@ info "Node          : ${NODE_BIN}"
 info "npm           : ${NPM_BIN}"
 echo ""
 
-# 1. Build the app
+# 1. Build the app (source env file first so NEXT_PUBLIC_* vars are available at build time)
 info "Building Next.js app..."
-sudo -u "${APP_USER}" bash -c "cd '${APP_DIR}' && ${NPM_BIN} run build"
+if [[ -f "${APP_DIR}/env" ]]; then
+  info "Sourcing ${APP_DIR}/env for build..."
+  sudo -u "${APP_USER}" bash -c "set -a; source '${APP_DIR}/env'; set +a; cd '${APP_DIR}' && ${NPM_BIN} run build"
+else
+  warn "No env file found at ${APP_DIR}/env — building without environment overrides."
+  sudo -u "${APP_USER}" bash -c "cd '${APP_DIR}' && ${NPM_BIN} run build"
+fi
 success "Build complete."
 echo ""
 

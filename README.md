@@ -51,8 +51,8 @@ cd oscarBoss
 npm install
 
 # Create production env file
-cp .env.example .env.production
-# Edit .env.production and set NEXT_PUBLIC_BASE_PATH=/oscars
+cp env.example env
+# Edit env and set NEXT_PUBLIC_BASE_PATH=/oscars
 
 # Initialize DB and seed
 npx prisma migrate deploy

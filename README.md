@@ -53,9 +53,9 @@ npm install
 # Generate Prisma client (required before any DB or build steps)
 npx prisma generate
 
-# Create production env file
-cp env.example env
-# Edit env and set NEXT_PUBLIC_BASE_PATH=/oscars
+# Create production env file (Next.js auto-loads .env.production at build+runtime)
+cp .env.example .env.production
+# Edit .env.production and set NEXT_PUBLIC_BASE_PATH=/oscars
 
 # Run migrations and seed
 npx prisma migrate deploy
@@ -106,7 +106,11 @@ location /oscars {
 }
 ```
 
-> **Note:** `basePath=/oscars` in `next.config.ts` is controlled by the `NEXT_PUBLIC_BASE_PATH` env var. The nginx `location /oscars` block must match exactly.
+> **Critical:** Do **not** add trailing slashes to `location` or `proxy_pass`. Using `location /oscars/` with `proxy_pass http://127.0.0.1:3510/` strips the `/oscars` prefix before forwarding — Next.js never sees it, so `basePath=/oscars` breaks and all `/_next/static/` asset requests 404 (no CSS/JS).
+>
+> The correct form passes the full path through unchanged: `location /oscars` → `proxy_pass http://127.0.0.1:3510` (no trailing slash on either). Next.js sees `/oscars/...` exactly as expected.
+>
+> `basePath` is controlled by `NEXT_PUBLIC_BASE_PATH=/oscars` in the `env` file and must match the `location` path exactly.
 
 ## Results Tally (March 15, 2026)
 

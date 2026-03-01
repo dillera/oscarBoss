@@ -30,9 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files — ignore live configs, track only env.example
-env
-.env
+# env files — ignore live configs, track only .env.example
+.env*
+!.env.example
 
 # vercel
 .vercel

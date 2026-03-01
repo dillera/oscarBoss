@@ -36,7 +36,60 @@ npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3510](http://localhost:3510).
+
+## Production Deployment (nginx reverse proxy)
+
+The app is configured to run at a subpath (e.g. `https://apps.diller.org/oscars`) behind nginx.
+
+### 1. Server setup
+
+```bash
+# Clone and install
+git clone git@github.com:dillera/oscarBoss.git
+cd oscarBoss/oscarboss
+npm install
+
+# Create production env file
+cp .env.example .env.production
+# Edit .env.production and set NEXT_PUBLIC_BASE_PATH=/oscars
+
+# Initialize DB and seed
+npx prisma migrate deploy
+npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts
+
+# Build and start on port 3510
+npm run build
+npm run start   # listens on :3510
+```
+
+For process management, use PM2:
+```bash
+npm install -g pm2
+pm2 start "npm run start" --name oscarboss
+pm2 save
+pm2 startup
+```
+
+### 2. nginx config
+
+```nginx
+location /oscars {
+    proxy_pass         http://127.0.0.1:3510;
+    proxy_http_version 1.1;
+
+    proxy_set_header   Host              $host;
+    proxy_set_header   X-Real-IP         $remote_addr;
+    proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header   X-Forwarded-Proto $scheme;
+
+    # Required for Next.js websocket HMR (dev only, harmless in prod)
+    proxy_set_header   Upgrade           $http_upgrade;
+    proxy_set_header   Connection        "upgrade";
+}
+```
+
+> **Note:** `basePath=/oscars` in `next.config.ts` is controlled by the `NEXT_PUBLIC_BASE_PATH` env var. The nginx `location /oscars` block must match exactly.
 
 ## Results Tally (March 15, 2026)
 

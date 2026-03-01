@@ -1,8 +1,25 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactCompiler: true,
+
+  // Subpath for nginx reverse proxy: https://apps.diller.org/oscars
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
+
+  // Allow Next.js <Image> to load from TMDB CDN
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "image.tmdb.org",
+        pathname: "/t/p/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

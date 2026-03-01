@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Trophy, Check, X, ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, apiPath } from "@/lib/utils";
 
 interface Nominee {
   id: number;
@@ -26,7 +26,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const [selectedWinners, setSelectedWinners] = useState<Record<number, string>>({});
 
   useEffect(() => {
-    fetch("/api/categories")
+    fetch(apiPath("/api/categories"))
       .then((r) => r.json())
       .then((d) => {
         setCategories(d.categories || []);
@@ -42,7 +42,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   async function saveWinner(categoryId: number, nomineeName: string) {
     setSaving(categoryId);
     try {
-      await fetch("/api/winners", {
+      await fetch(apiPath("/api/winners"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ categoryId, nomineeName }),
@@ -61,7 +61,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   async function clearWinner(categoryId: number) {
     setSaving(categoryId);
     try {
-      await fetch("/api/winners", {
+      await fetch(apiPath("/api/winners"), {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ categoryId }),

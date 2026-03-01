@@ -2,7 +2,7 @@
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X, Trophy, User } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, apiPath } from "@/lib/utils";
 
 interface AuthModalProps {
   open: boolean;
@@ -21,7 +21,7 @@ export default function AuthModal({ open, onClose, onSuccess }: AuthModalProps) 
     setError("");
     setLoading(true);
     try {
-      const res = await fetch(`/api/auth/${mode}`, {
+      const res = await fetch(apiPath(`/api/auth/${mode}`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ firstName }),

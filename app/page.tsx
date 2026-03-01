@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { cn, apiPath } from "@/lib/utils";
 import Header from "@/components/Header";
 import HeroBanner from "@/components/HeroBanner";
 import CategorySection from "@/components/CategorySection";
@@ -66,7 +67,7 @@ export default function Home() {
 
   // Load current user
   useEffect(() => {
-    fetch("/api/auth/me")
+    fetch(apiPath("/api/auth/me"))
       .then((r) => r.json())
       .then((d) => setUser(d.user));
   }, []);
@@ -75,7 +76,7 @@ export default function Home() {
   const loadCategories = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/categories");
+      const res = await fetch(apiPath("/api/categories"));
       const data = await res.json();
       setCategories(data.categories || []);
       setUserVotes(data.userVotes || {});
@@ -88,7 +89,7 @@ export default function Home() {
 
   // Load odds (poll every 30s)
   const loadOdds = useCallback(async () => {
-    const res = await fetch("/api/odds");
+    const res = await fetch(apiPath("/api/odds"));
     const data = await res.json();
     setOdds(data.odds || {});
   }, []);
@@ -100,7 +101,7 @@ export default function Home() {
   }, [loadOdds]);
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await fetch(apiPath("/api/auth/logout"), { method: "POST" });
     setUser(null);
     setUserVotes({});
   }

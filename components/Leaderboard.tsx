@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Trophy, Medal, User, GraduationCap, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, apiPath } from "@/lib/utils";
 
 interface Pick {
   categoryId: number;
@@ -37,7 +37,7 @@ export default function Leaderboard({ currentUserId }: LeaderboardProps) {
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch("/api/leaderboard");
+      const res = await fetch(apiPath("/api/leaderboard"));
       const json = await res.json();
       setData(json);
     } finally {

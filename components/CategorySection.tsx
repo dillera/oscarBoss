@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { ChevronDown, ChevronUp, Star, CheckCircle2, Trophy, User, GraduationCap } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, apiPath } from "@/lib/utils";
 import NomineeCard from "./NomineeCard";
 
 interface Nominee {
@@ -79,7 +79,7 @@ export default function CategorySection({
   async function handleSave() {
     setSaving(true);
     try {
-      await fetch("/api/votes", {
+      await fetch(apiPath("/api/votes"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ categoryId: category.id, picks: localPicks }),

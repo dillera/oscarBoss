@@ -91,26 +91,32 @@ journalctl -u oscarboss -f
 ### 2. nginx config
 
 ```nginx
-location /oscars {
+# Proxy Next.js static assets — these are requested at /_next/... (no basePath prefix)
+location /_next/ {
     proxy_pass         http://127.0.0.1:3510;
     proxy_http_version 1.1;
-
     proxy_set_header   Host              $host;
     proxy_set_header   X-Real-IP         $remote_addr;
     proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
     proxy_set_header   X-Forwarded-Proto $scheme;
+}
 
-    # Required for Next.js websocket HMR (dev only, harmless in prod)
+# Proxy the app itself — no trailing slash on location or proxy_pass
+location /oscars {
+    proxy_pass         http://127.0.0.1:3510;
+    proxy_http_version 1.1;
+    proxy_set_header   Host              $host;
+    proxy_set_header   X-Real-IP         $remote_addr;
+    proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header   X-Forwarded-Proto $scheme;
     proxy_set_header   Upgrade           $http_upgrade;
     proxy_set_header   Connection        "upgrade";
 }
 ```
 
-> **Critical:** Do **not** add trailing slashes to `location` or `proxy_pass`. Using `location /oscars/` with `proxy_pass http://127.0.0.1:3510/` strips the `/oscars` prefix before forwarding — Next.js never sees it, so `basePath=/oscars` breaks and all `/_next/static/` asset requests 404 (no CSS/JS).
+> **Why `/_next/` needs its own block:** Next.js requests CSS/JS from `/_next/static/...` — these paths do **not** include the `basePath` prefix. Without a separate `location /_next/` block, those requests fall through to nginx's default handler and 404 (no CSS/JS loads).
 >
-> The correct form passes the full path through unchanged: `location /oscars` → `proxy_pass http://127.0.0.1:3510` (no trailing slash on either). Next.js sees `/oscars/...` exactly as expected.
->
-> `basePath` is controlled by `NEXT_PUBLIC_BASE_PATH=/oscars` in the `env` file and must match the `location` path exactly.
+> Do **not** add trailing slashes to `location /oscars` or its `proxy_pass` — that would strip the prefix before forwarding and break routing.
 
 ## Results Tally (March 15, 2026)
 

@@ -91,17 +91,9 @@ journalctl -u oscarboss -f
 ### 2. nginx config
 
 ```nginx
-# Proxy Next.js static assets — these are requested at /_next/... (no basePath prefix)
-location /_next/ {
-    proxy_pass         http://127.0.0.1:3510;
-    proxy_http_version 1.1;
-    proxy_set_header   Host              $host;
-    proxy_set_header   X-Real-IP         $remote_addr;
-    proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
-    proxy_set_header   X-Forwarded-Proto $scheme;
-}
-
-# Proxy the app itself — no trailing slash on location or proxy_pass
+# Single location block is sufficient — assetPrefix=/oscars in next.config.ts
+# means all /_next/static/... requests are prefixed with /oscars/_next/...
+# so they all flow through this one block. Safe for multi-app servers.
 location /oscars {
     proxy_pass         http://127.0.0.1:3510;
     proxy_http_version 1.1;
@@ -114,9 +106,7 @@ location /oscars {
 }
 ```
 
-> **Why `/_next/` needs its own block:** Next.js requests CSS/JS from `/_next/static/...` — these paths do **not** include the `basePath` prefix. Without a separate `location /_next/` block, those requests fall through to nginx's default handler and 404 (no CSS/JS loads).
->
-> Do **not** add trailing slashes to `location /oscars` or its `proxy_pass` — that would strip the prefix before forwarding and break routing.
+> No trailing slashes on `location` or `proxy_pass`. The app uses both `basePath` and `assetPrefix` set to `/oscars`, so every request — pages, API routes, and static assets — goes through this single block. No global `/_next/` rule needed, no conflicts with other apps on the same server.
 
 ## Results Tally (March 15, 2026)
 

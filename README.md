@@ -63,12 +63,26 @@ npm run build
 npm run start   # listens on :3510
 ```
 
-For process management, use PM2:
+For process management, use the included systemd install script:
 ```bash
-npm install -g pm2
-pm2 start "npm run start" --name oscarboss
-pm2 save
-pm2 startup
+sudo bash scripts/install-service.sh
+```
+
+This script will:
+- Build the Next.js app (`npm run build`)
+- Generate a systemd unit file with the correct paths for the current server
+- Compare it against any already-installed unit — **only replaces it if it differs**
+- Enable the service to start on boot
+- Start (or restart) the service
+
+On subsequent deploys (e.g. after `git pull`), re-running the script will rebuild, diff the unit file, and restart the service. If nothing in the unit file changed it will not touch systemd — only restart the app.
+
+```bash
+# Check service status
+systemctl status oscarboss
+
+# Follow live logs
+journalctl -u oscarboss -f
 ```
 
 ### 2. nginx config

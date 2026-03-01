@@ -50,3 +50,6 @@ prisma/dev.db-wal
 
 # TMDB image fetch output (generated script artifact)
 scripts/tmdb-images.json
+
+# Generated systemd unit file (server-specific paths, created by install-service.sh)
+scripts/oscarboss.service

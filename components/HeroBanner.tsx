@@ -25,8 +25,8 @@ export default function HeroBanner() {
             Pick Your <span className="text-yellow-400">Oscar</span> Winners
           </h1>
           <p className="text-zinc-400 text-sm max-w-md">
-            Predict the 2026 Academy Award winners across all 24 categories. 
-            Select your top 3 picks per category and compete on the leaderboard.
+            Predict the 2026 Academy Award winners across all 24 categories.
+            Make your <span className="text-yellow-400 font-semibold">My Pick</span> (2pts) and <span className="text-sky-400 font-semibold">Academy Pick</span> (1pt) per category and compete on the leaderboard.
           </p>
         </div>
 
